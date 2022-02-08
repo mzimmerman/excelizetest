@@ -18,5 +18,3 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.9 // indirect
 )
-
-replace github.com/xuri/excelize/v2 => ../excelize
