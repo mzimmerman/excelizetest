@@ -79,9 +79,9 @@ func BenchmarkExcelize1000x1000(b *testing.B) {
 	benchmarkExcelize(1000, 1000, b)
 }
 
-// func BenchmarkExcelize10000x10000(b *testing.B) {
-// 	benchmarkExcelize(10000, 10000, b)
-// }
+func BenchmarkExcelize10000x10000(b *testing.B) {
+	benchmarkExcelize(10000, 10000, b)
+}
 
 func BenchmarkExcelize1000x10(b *testing.B) {
 	benchmarkExcelize(1000, 10, b)
