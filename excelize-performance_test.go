@@ -8,33 +8,19 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/xuri/excelize/v2"
+	"github.com/mzimmerman/xlsxwriter"
 )
 
 func WriteExcel(data [][]string, out io.Writer) error {
-	file := excelize.NewFile()
 	if len(data) == 0 {
 		return nil // nothing to write, no error
 	}
-	sw, err := file.NewStreamWriter("Sheet1")
+	file, err := xlsxwriter.New(out)
 	if err != nil {
 		return err
 	}
-	lineInterface := make([]interface{}, len(data[0]))
-	for excelLineNum, line := range data {
-		lineInterface = lineInterface[:0]
-		for x := range line {
-			lineInterface = append(lineInterface, line[x])
-		}
-		cell, _ := excelize.CoordinatesToCellName(1, excelLineNum+1)
-		err = sw.SetRow(cell, lineInterface)
-		if err != nil {
-			return err
-		}
-	}
-	sw.Flush()
-	_, err = file.WriteTo(out)
-	return err
+	defer file.Close()
+	return file.WriteLines(data)
 }
 
 // func WriteExcelStream(data [][]string, out io.Writer) error {
