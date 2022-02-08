@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io"
+	"os"
 	"strconv"
 	"testing"
 
@@ -30,9 +32,40 @@ func WriteExcel(data [][]string, out io.Writer) error {
 			return err
 		}
 	}
+	sw.Flush()
 	_, err = file.WriteTo(out)
 	return err
 }
+
+// func WriteExcelStream(data [][]string, out io.Writer) error {
+// 	file := excelize.NewFile()
+// 	if len(data) == 0 {
+// 		return nil // nothing to write, no error
+// 	}
+// 	sw, err := file.NewStreamWriter("Sheet1")
+// 	if err != nil {
+// 		return err
+// 	}
+// 	dataIn := make(chan []interface{})
+// 	go func() {
+// 		defer close(dataIn)
+// 		for _, line := range data {
+// 			lineInterface := make([]interface{}, len(line))
+// 			for x := range line {
+// 				lineInterface[x] = line[x]
+// 			}
+// 			dataIn <- lineInterface
+// 		}
+// 	}()
+// 	cell, _ := excelize.CoordinatesToCellName(1, 1)
+// 	err = sw.SetRows(context.Background(), cell, dataIn)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	sw.Flush()
+// 	_, err = file.WriteTo(out)
+// 	return err
+// }
 
 func BenchmarkExcelize10x10(b *testing.B) {
 	benchmarkExcelize(10, 10, b)
@@ -71,7 +104,6 @@ func BenchmarkExcelize10000x1000(b *testing.B) {
 }
 
 func benchmarkExcelize(rows, cols int, b *testing.B) {
-	// run the Fib function b.N times
 	buf := bytes.Buffer{}
 	for n := 0; n < b.N; n++ {
 		b.StopTimer()
@@ -91,4 +123,19 @@ func benchmarkExcelize(rows, cols int, b *testing.B) {
 			b.Fatalf("error writing excel - %v", err)
 		}
 	}
+}
+
+func TestExcel(t *testing.T) {
+	data := [][]string{{"hi", "there"}, {"yes", "no"}}
+	fo, err := os.Create(fmt.Sprintf("tmp-%s.xlsx", "test"))
+	if err != nil {
+		t.Fatalf("error - %v", err)
+		return
+	}
+	err = WriteExcel(data, fo)
+	if err != nil {
+		t.Fatalf("error - %v", err)
+		return
+	}
+	fo.Close()
 }
